@@ -470,6 +470,8 @@ def _collect_masked_vectors(
     dimensions_list: list[tuple[int, ...]] = [a.shape for a in quantized_parameters]
 
     # Add private mask
+    if state.rd_seed is None:
+        raise ValueError("Node %d: rd_seed is not set.", state.nid)
     private_mask = pseudo_rand_gen(state.rd_seed, state.mod_range, dimensions_list)
     quantized_parameters = parameters_addition(quantized_parameters, private_mask)
 

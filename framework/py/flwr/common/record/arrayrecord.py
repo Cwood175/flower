@@ -229,7 +229,7 @@ class ArrayRecord(TypedDict[str, Array]):
                 and all(isinstance(v, torch.Tensor) for v in arg.values())
             ):
                 torch_state_dict = cast(
-                    OrderedDict[str, torch.Tensor], arg  # type: ignore
+                    OrderedDict[str, torch.Tensor], arg
                 )
                 converted = self.from_torch_state_dict(
                     torch_state_dict, keep_input=keep_input

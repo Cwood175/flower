@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """Aggregation functions for strategy implementations."""
-# mypy: disallow_untyped_calls=False
 
 from functools import partial, reduce
 from typing import Any, Callable, Union
@@ -36,7 +35,7 @@ def aggregate(results: list[tuple[NDArrays, int]]) -> NDArrays:
 
     # Compute average weights of each layer
     weights_prime: NDArrays = [
-        reduce(np.add, layer_updates) / num_examples_total
+        reduce(np.add, layer_updates) / float(num_examples_total)
         for layer_updates in zip(*weighted_weights)
     ]
     return weights_prime
@@ -128,14 +127,14 @@ def aggregate_krum(
         return aggregate(best_results)
 
     # Return the model parameters that minimize the score (Krum)
-    return weights[np.argmin(scores)]
+    return weights[int(np.argmin(scores))]
 
 
 # pylint: disable=too-many-locals
 def aggregate_bulyan(
     results: list[tuple[NDArrays, int]],
     num_malicious: int,
-    aggregation_rule: Callable,  # type: ignore
+    aggregation_rule: Callable[..., NDArray],
     **aggregation_rule_kwargs: Any,
 ) -> NDArrays:
     """Perform Bulyan aggregation.
@@ -218,7 +217,7 @@ def weighted_loss_avg(results: list[tuple[int, float]]) -> float:
     """Aggregate evaluation results obtained from multiple clients."""
     num_total_evaluation_examples = sum(num_examples for (num_examples, _) in results)
     weighted_losses = [num_examples * loss for num_examples, loss in results]
-    return sum(weighted_losses) / num_total_evaluation_examples
+    return float(sum(weighted_losses)) / num_total_evaluation_examples
 
 
 def aggregate_qffl(

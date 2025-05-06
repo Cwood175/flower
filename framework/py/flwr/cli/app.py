@@ -18,6 +18,7 @@ import typer
 from typer.main import get_command
 
 from flwr.common.version import package_version
+from .version import version
 
 from .build import build
 from .install import install
@@ -35,7 +36,6 @@ app = typer.Typer(
         bold=True,
     ),
     no_args_is_help=True,
-    context_settings={"help_option_names": ["-h", "--help"]},
 )
 
 app.command()(new)
@@ -56,7 +56,6 @@ def version_callback(
         None,
         "-V",
         "--version",
-        is_eager=True,
         help="Show the version and exit.",
     ),
 ) -> None:

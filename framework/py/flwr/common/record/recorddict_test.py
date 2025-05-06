@@ -67,6 +67,7 @@ def test_ndarray_to_array() -> None:
 
     arr_ = np.frombuffer(buffer=array.data, dtype=array.dtype).reshape(array.shape)
 
+    assert isinstance(arr, np.ndarray)
     assert np.array_equal(arr, arr_)
 
 
@@ -116,6 +117,7 @@ def test_parameters_to_arrayrecord_and_back(
 
     # Validate returned NDArrays match those at the beginning
     for arr, arr_ in zip(ndarrays, ndarrays_):
+        assert isinstance(arr, np.ndarray)
         assert np.array_equal(arr, arr_), "no"
 
     # Validate initial Parameters object has been handled according to `keep_input`
@@ -169,7 +171,7 @@ def test_set_parameters_with_incorrect_types(
     }
 
     with pytest.raises(TypeError):
-        arr_record.update(array_dict)  # type: ignore
+        arr_record.update(array_dict)
 
 
 @pytest.mark.parametrize(
@@ -250,7 +252,7 @@ def test_set_metrics_to_metricrecord_with_incorrect_types(
     )
 
     with pytest.raises(TypeError):
-        m_record.update(my_metrics)  # type: ignore
+        m_record.update(my_metrics)
 
 
 @pytest.mark.parametrize(

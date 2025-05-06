@@ -196,5 +196,6 @@ def test_aggregate_fit() -> None:
     )
     assert actual_aggregated
     actual_list = parameters_to_ndarrays(actual_aggregated)
+    assert len(actual_list) > 0
     actual = actual_list[0]
     assert (actual == expected[0]).all()
