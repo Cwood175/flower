@@ -14,7 +14,6 @@
 # ==============================================================================
 """Modifier for the SecAgg+ protocol."""
 
-
 import os
 from dataclasses import dataclass, field
 from logging import DEBUG, WARNING
@@ -461,7 +460,7 @@ def _collect_masked_vectors(
     parameters = parameters_multiply(parameters, dq_ratio)
 
     # Quantize parameter update (vector)
-    quantized_parameters = quantize(
+    quantized_parameters: list[NDArray] = quantize(
         parameters, state.clipping_range, state.target_range
     )
 

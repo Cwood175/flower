@@ -17,9 +17,10 @@
 Paper: arxiv.org/pdf/1909.06335.pdf
 """
 
-
 from logging import WARNING
 from typing import Callable, Optional, Union
+
+import numpy as np
 
 from flwr.common import (
     FitRes,
@@ -152,23 +153,23 @@ class FedAvgM(FedAvg):
         # https://pytorch.org/docs/stable/generated/torch.optim.SGD.html
         if self.server_opt:
             # You need to initialize the model
-            assert (
-                self.initial_parameters is not None
-            ), "When using server-side optimization, model needs to be initialized."
+            assert self.initial_parameters is not None, (
+                "When using server-side optimization, model needs to be initialized."
+            )
             initial_weights = parameters_to_ndarrays(self.initial_parameters)
 
             # remember that updates are the opposite of gradients
             pseudo_gradient: NDArrays = [
-                x - y
+                np.subtract(x, y)
                 for x, y in zip(
                     parameters_to_ndarrays(self.initial_parameters), fedavg_result
                 )
             ]
             if self.server_momentum > 0.0:
                 if server_round > 1:
-                    assert (
-                        self.momentum_vector
-                    ), "Momentum should have been created on round 1."
+                    assert self.momentum_vector, (
+                        "Momentum should have been created on round 1."
+                    )
                     self.momentum_vector = [
                         self.server_momentum * x + y
                         for x, y in zip(self.momentum_vector, pseudo_gradient)

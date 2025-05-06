@@ -53,9 +53,11 @@ def aggregate_inplace(results: list[tuple[ClientProxy, FitRes]]) -> NDArrays:
     )
 
     def _try_inplace(
-        x: NDArray, y: Union[NDArray, np.float64], np_binary_op: np.ufunc
-    ) -> NDArray:
-        return (  # type: ignore[no-any-return]
+        x: np.ndarray,
+        y: Union[np.ndarray, np.float64],
+        np_binary_op: np.ufunc,
+    ) -> np.ndarray:
+        return (
             np_binary_op(x, y, out=x)
             if np.can_cast(y, x.dtype, casting="same_kind")
             else np_binary_op(x, np.array(y, x.dtype), out=x)
@@ -239,14 +241,17 @@ def aggregate_qffl(
     return new_parameters
 
 
-def _compute_distances(weights: list[NDArrays]) -> NDArray:
+def _compute_distances(weights: list[NDArrays]) -> np.ndarray:
     """Compute distances between vectors.
 
     Input: weights - list of weights vectors
     Output: distances - matrix distance_matrix of squared distances between the vectors
     """
-    flat_w = np.array([np.concatenate(p, axis=None).ravel() for p in weights])
-    distance_matrix = np.zeros((len(weights), len(weights)))
+    flat_w: list[np.ndarray] = [
+        np.concatenate([np.asarray(layer) for layer in p], axis=None).ravel()
+        for p in weights
+    ]
+    distance_matrix: np.ndarray = np.zeros((len(weights), len(weights)))
     for i, flat_w_i in enumerate(flat_w):
         for j, flat_w_j in enumerate(flat_w):
             delta = flat_w_i - flat_w_j
@@ -365,8 +370,9 @@ def _aggregate_n_closest_weights(
         for other_w in list_of_weights:
             other_weights_layer = other_w[layer_id]
             other_weights_layer_list.append(other_weights_layer)
-        other_weights_layer_np = np.array(other_weights_layer_list)
-        diff_np = np.abs(layer_weights - other_weights_layer_np)
+        layer_weights_np: np.ndarray = np.asarray(layer_weights)
+        other_weights_layer_np: np.ndarray = np.asarray(other_weights_layer_list)
+        diff_np = np.abs(layer_weights_np - other_weights_layer_np)
         # Create indices of the smallest differences
         # We do not need the exact order but just the beta closest weights
         # therefore np.argpartition is used instead of np.argsort
