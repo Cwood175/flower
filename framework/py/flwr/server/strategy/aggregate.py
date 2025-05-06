@@ -36,7 +36,7 @@ def aggregate(results: list[tuple[NDArrays, int]]) -> NDArrays:
 
     # Compute average weights of each layer
     weights_prime: NDArrays = [
-        reduce(np.add, layer_updates) / num_examples_total
+        np.sum(layer_updates, axis=0) / num_examples_total
         for layer_updates in zip(*weighted_weights)
     ]
     return weights_prime
@@ -74,7 +74,10 @@ def aggregate_inplace(results: list[tuple[ClientProxy, FitRes]]) -> NDArrays:
             for x in parameters_to_ndarrays(fit_res.parameters)
         )
         params = [
-            reduce(partial(_try_inplace, np_binary_op=np.add), layer_updates)
+            np.add.reduceat(
+                np.concatenate([p.reshape(-1) for p in layer_updates]),
+                [0] + [len(p) for p in layer_updates[:-1]]
+            )
             for layer_updates in zip(params, res)
         ]
 
@@ -88,7 +91,7 @@ def aggregate_median(results: list[tuple[NDArrays, int]]) -> NDArrays:
 
     # Compute median weight of each layer
     median_w: NDArrays = [
-        np.median(np.asarray(layer), axis=0) for layer in zip(*weights)
+        np.median(np.asarray(layer, dtype=float), axis=0) for layer in zip(*weights)
     ]
     return median_w
 
@@ -117,7 +120,7 @@ def aggregate_krum(
     # Compute the score for each client, that is the sum of the distances
     # of the n-f-2 closest parameters vectors
     scores = [
-        np.sum(distance_matrix[i, closest_indices[i]])
+        float(np.sum(distance_matrix[i, closest_indices[i]]))
         for i in range(len(distance_matrix))
     ]
 
@@ -233,9 +236,9 @@ def aggregate_qffl(
     for i in range(len(deltas[0])):
         tmp = scaled_deltas[0][i]
         for j in range(1, len(deltas)):
-            tmp += scaled_deltas[j][i]
+            tmp = np.add(tmp, scaled_deltas[j][i])
         updates.append(tmp)
-    new_parameters = [(u - v) * 1.0 for u, v in zip(parameters, updates)]
+    new_parameters = [np.subtract(u, v) * 1.0 for u, v in zip(parameters, updates)]
     return new_parameters
 
 
@@ -286,7 +289,7 @@ def aggregate_trimmed_avg(
     weights = [weights for weights, _ in results]
 
     trimmed_w: NDArrays = [
-        _trim_mean(np.asarray(layer), proportiontocut=proportiontocut)
+        _trim_mean(np.asarray(layer, dtype=float), proportiontocut=proportiontocut)
         for layer in zip(*weights)
     ]
 

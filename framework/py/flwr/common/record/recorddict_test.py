@@ -122,7 +122,7 @@ def test_parameters_to_arrayrecord_and_back(
     assert validate_freed_fn(parameters, parameters_copy, parameters_)
 
 
-def test_set_parameters_while_keeping_intputs() -> None:
+def test_set_parameters_while_keeping_inputs() -> None:
     """Test keep_input functionality in ArrayRecord."""
     # Adding parameters to a record that doesn't erase entries in the input `array_dict`
     array_dict = OrderedDict(
@@ -274,7 +274,7 @@ def test_set_metrics_to_metricrecord_with_and_without_keeping_input(
     my_metrics_copy = my_metrics.copy()
 
     # Add metric
-    m_record = MetricRecord(my_metrics, keep_input=keep_input)  # type: ignore
+    m_record = MetricRecord(my_metrics, keep_input=keep_input)
 
     # Check metrics are actually added
     # Check that input dict has been emptied when enabled such behaviour
@@ -360,7 +360,7 @@ def test_set_configs_to_configrecord_with_incorrect_types(
     )
 
     with pytest.raises(TypeError):
-        c_record.update(my_configs)  # type: ignore
+        c_record.update(my_configs)
 
 
 def test_count_bytes_metricrecord() -> None:

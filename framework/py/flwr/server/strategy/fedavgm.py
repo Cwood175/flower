@@ -164,6 +164,7 @@ class FedAvgM(FedAvg):
                     parameters_to_ndarrays(self.initial_parameters), fedavg_result
                 )
             ]
+            pseudo_gradient = [np.array(p) for p in pseudo_gradient]
             if self.server_momentum > 0.0:
                 if server_round > 1:
                     assert (
@@ -181,7 +182,7 @@ class FedAvgM(FedAvg):
 
             # SGD
             fedavg_result = [
-                x - self.server_learning_rate * y
+                np.array(x) - self.server_learning_rate * np.array(y)
                 for x, y in zip(initial_weights, pseudo_gradient)
             ]
             # Update current weights
