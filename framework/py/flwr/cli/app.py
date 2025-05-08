@@ -47,7 +47,10 @@ app.command()(ls)
 app.command()(stop)
 app.command()(login)
 
-typer_click_object = get_command(app)
+
+def typer_click_object() -> None:
+    """Run the Flower CLI."""
+    get_command(app)()
 
 
 @app.callback(invoke_without_command=True)

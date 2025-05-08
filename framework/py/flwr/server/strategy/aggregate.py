@@ -55,7 +55,7 @@ def aggregate_inplace(results: list[tuple[ClientProxy, FitRes]]) -> NDArrays:
     def _try_inplace(
         x: NDArray, y: Union[NDArray, np.float64], np_binary_op: np.ufunc
     ) -> NDArray:
-        return (  # type: ignore[no-any-return]
+        return (
             np_binary_op(x, y, out=x)
             if np.can_cast(y, x.dtype, casting="same_kind")
             else np_binary_op(x, np.array(y, x.dtype), out=x)
@@ -128,7 +128,7 @@ def aggregate_krum(
         return aggregate(best_results)
 
     # Return the model parameters that minimize the score (Krum)
-    return weights[np.argmin(scores)]
+    return weights[int(np.argmin(scores))]
 
 
 # pylint: disable=too-many-locals
@@ -245,7 +245,7 @@ def _compute_distances(weights: list[NDArrays]) -> NDArray:
     Input: weights - list of weights vectors
     Output: distances - matrix distance_matrix of squared distances between the vectors
     """
-    flat_w = np.array([np.concatenate(p, axis=None).ravel() for p in weights])
+    flat_w: NDArray = np.array([np.concatenate(p, axis=None) for p in weights])
     distance_matrix = np.zeros((len(weights), len(weights)))
     for i, flat_w_i in enumerate(flat_w):
         for j, flat_w_j in enumerate(flat_w):
