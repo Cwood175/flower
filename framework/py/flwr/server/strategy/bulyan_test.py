@@ -117,8 +117,8 @@ def test_aggregate_fit() -> None:
             ),
         ),
     ]
-    coordinate = (0.2 + 0.5 + 0.7 + 12.0 + 0.1 + 0.1) / 6
-    expected: NDArrays = [array([coordinate] * 4, dtype=float32)]
+    coordinate = np.float32((0.2 + 0.5 + 0.7 + 12.0 + 0.1 + 0.1) / 6)
+    expected: NDArrays = [np.array([coordinate] * 4, dtype=np.float32)]
 
     # Execute
     actual_aggregated, _ = strategy.aggregate_fit(

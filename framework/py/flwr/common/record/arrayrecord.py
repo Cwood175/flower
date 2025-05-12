@@ -24,10 +24,10 @@ from logging import WARN
 from typing import TYPE_CHECKING, Any, cast, overload
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ..constant import GC_THRESHOLD
 from ..logger import log
-from ..typing import NDArray
 from .array import Array
 from .typeddict import TypedDict
 
@@ -229,7 +229,7 @@ class ArrayRecord(TypedDict[str, Array]):
                 and all(isinstance(v, torch.Tensor) for v in arg.values())
             ):
                 torch_state_dict = cast(
-                    OrderedDict[str, torch.Tensor], arg  # type: ignore
+                    OrderedDict[str, torch.Tensor], arg
                 )
                 converted = self.from_torch_state_dict(
                     torch_state_dict, keep_input=keep_input
@@ -272,7 +272,7 @@ class ArrayRecord(TypedDict[str, Array]):
 
             if not keep_input:
                 # Remove the reference
-                ndarrays[i] = None  # type: ignore
+                ndarrays[i] = None
                 total_serialized_bytes += len(record[str(i)].data)
 
                 # If total serialized data exceeds the threshold, trigger GC

@@ -174,8 +174,8 @@ class QFedAvg(FedAvg):
             # output: square of the L-2 norm
             client_grads = grad_list[0]
             for i in range(1, len(grad_list)):
-                client_grads = np.append(
-                    client_grads, grad_list[i]
+                client_grads = np.concatenate(
+                    (client_grads, grad_list[i])
                 )  # output a flattened array
             squared = np.square(client_grads)
             summed = np.sum(squared)
@@ -198,7 +198,7 @@ class QFedAvg(FedAvg):
             new_weights = parameters_to_ndarrays(fit_res.parameters)
             # plug in the weight updates into the gradient
             grads = [
-                np.multiply((u - v), 1.0 / self.learning_rate)
+                np.subtract(u, v) / self.learning_rate
                 for u, v in zip(weights_before, new_weights)
             ]
             deltas.append(

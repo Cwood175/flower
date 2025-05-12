@@ -19,9 +19,13 @@ from functools import partial, reduce
 from typing import Any, Callable, Union
 
 import numpy as np
+import numpy.typing as npt
 
-from flwr.common import FitRes, NDArray, NDArrays, parameters_to_ndarrays
+from flwr.common import FitRes, parameters_to_ndarrays
 from flwr.server.client_proxy import ClientProxy
+
+NDArray = npt.NDArray[np.float64]
+NDArrays = list[NDArray]
 
 
 def aggregate(results: list[tuple[NDArrays, int]]) -> NDArrays:
