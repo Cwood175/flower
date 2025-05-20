@@ -90,89 +90,91 @@ def _check_actionable_client(
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
-def start_client_internal(
-    *,
-    server_address: str,
-    node_config: UserConfig,
-    load_client_app_fn: Optional[Callable[[str, str, str], ClientApp]] = None,
-    client_fn: Optional[ClientFnExt] = None,
-    client: Optional[Client] = None,
-    grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
-    root_certificates: Optional[Union[bytes, str]] = None,
-    insecure: Optional[bool] = None,
-    transport: Optional[str] = None,
-    authentication_keys: Optional[
-        tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]
-    ] = None,
-    max_retries: Optional[int] = None,
-    max_wait_time: Optional[float] = None,
-    flwr_path: Optional[Path] = None,
-    isolation: Optional[str] = None,
-    clientappio_api_address: Optional[str] = CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS,
-) -> None:
-    """Start a Flower client node which connects to a Flower server.
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments
+    def start_client_internal(
+        *,
+        server_address: str,
+        node_config: UserConfig,
+        load_client_app_fn: Optional[Callable[[str, str, str], ClientApp]] = None,
+        client_fn: Optional[ClientFnExt] = None,
+        client: Optional[Client] = None,
+        grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
+        root_certificates: Optional[Union[bytes, str]] = None,
+        insecure: Optional[bool] = None,
+        transport: Optional[str] = None,
+        authentication_keys: Optional[
+            tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]
+        ] = None,
+        max_retries: Optional[int] = None,
+        max_wait_time: Optional[float] = None,
+        flwr_path: Optional[Path] = None,
+        isolation: Optional[str] = None,
+        clientappio_api_address: Optional[str] = CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS,
+    ) -> None:
+        """Start a Flower client node which connects to a Flower server.
 
-    Parameters
-    ----------
-    server_address : str
-        The IPv4 or IPv6 address of the server. If the Flower
-        server runs on the same machine on port 8080, then `server_address`
-        would be `"[::]:8080"`.
-    node_config: UserConfig
-        The configuration of the node.
-    load_client_app_fn : Optional[Callable[[], ClientApp]] (default: None)
-        A function that can be used to load a `ClientApp` instance.
-    client_fn : Optional[ClientFnExt]
-        A callable that instantiates a Client. (default: None)
-    client : Optional[flwr.client.Client]
-        An implementation of the abstract base
-        class `flwr.client.Client` (default: None)
-    grpc_max_message_length : int (default: 536_870_912, this equals 512MB)
-        The maximum length of gRPC messages that can be exchanged with the
-        Flower server. The default should be sufficient for most models.
-        Users who train very large models might need to increase this
-        value. Note that the Flower server needs to be started with the
-        same value (see `flwr.server.start_server`), otherwise it will not
-        know about the increased limit and block larger messages.
-    root_certificates : Optional[Union[bytes, str]] (default: None)
-        The PEM-encoded root certificates as a byte string or a path string.
-        If provided, a secure connection using the certificates will be
-        established to an SSL-enabled Flower server.
-    insecure : Optional[bool] (default: None)
-        Starts an insecure gRPC connection when True. Enables HTTPS connection
-        when False, using system certificates if `root_certificates` is None.
-    transport : Optional[str] (default: None)
-        Configure the transport layer. Allowed values:
-        - 'grpc-bidi': gRPC, bidirectional streaming
-        - 'grpc-rere': gRPC, request-response (experimental)
-        - 'rest': HTTP (experimental)
-    authentication_keys : Optional[Tuple[PrivateKey, PublicKey]] (default: None)
-        Tuple containing the elliptic curve private key and public key for
-        authentication from the cryptography library.
-        Source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/
-        Used to establish an authenticated connection with the server.
-    max_retries: Optional[int] (default: None)
-        The maximum number of times the client will try to connect to the
-        server before giving up in case of a connection error. If set to None,
-        there is no limit to the number of tries.
-    max_wait_time: Optional[float] (default: None)
-        The maximum duration before the client stops trying to
-        connect to the server in case of connection error.
-        If set to None, there is no limit to the total time.
-    flwr_path: Optional[Path] (default: None)
-        The fully resolved path containing installed Flower Apps.
-    isolation : Optional[str] (default: None)
-        Isolation mode for `ClientApp`. Possible values are `subprocess` and
-        `process`. Defaults to `None`, which runs the `ClientApp` in the same process
-        as the SuperNode. If `subprocess`, the `ClientApp` runs in a subprocess started
-        by the SueprNode and communicates using gRPC at the address
-        `clientappio_api_address`. If `process`, the `ClientApp` runs in a separate
-        isolated process and communicates using gRPC at the address
-        `clientappio_api_address`.
-    clientappio_api_address : Optional[str]
-        (default: `CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS`)
-        The SuperNode gRPC server address.
-    """
+        Parameters
+        ----------
+        server_address : str
+            The IPv4 or IPv6 address of the server. If the Flower
+            server runs on the same machine on port 8080, then `server_address`
+            would be `"[::]:8080"`.
+        node_config: UserConfig
+            The configuration of the node.
+        load_client_app_fn : Optional[Callable[[], ClientApp]] (default: None)
+            A function that can be used to load a `ClientApp` instance.
+        client_fn : Optional[ClientFnExt]
+            A callable that instantiates a Client. (default: None)
+        client : Optional[flwr.client.Client]
+            An implementation of the abstract base
+            class `flwr.client.Client` (default: None)
+        grpc_max_message_length : int (default: 536_870_912, this equals 512MB)
+            The maximum length of gRPC messages that can be exchanged with the
+            Flower server. The default should be sufficient for most models.
+            Users who train very large models might need to increase this
+            value. Note that the Flower server needs to be started with the
+            same value (see `flwr.server.start_server`), otherwise it will not
+            know about the increased limit and block larger messages.
+        root_certificates : Optional[Union[bytes, str]] (default: None)
+            The PEM-encoded root certificates as a byte string or a path string.
+            If provided, a secure connection using the certificates will be
+            established to an SSL-enabled Flower server.
+        insecure : Optional[bool] (default: None)
+            Starts an insecure gRPC connection when True. Enables HTTPS connection
+            when False, using system certificates if `root_certificates` is None.
+        transport : Optional[str] (default: None)
+            Configure the transport layer. Allowed values:
+            - 'grpc-bidi': gRPC, bidirectional streaming
+            - 'grpc-rere': gRPC, request-response (experimental)
+            - 'rest': HTTP (experimental)
+        authentication_keys : Optional[Tuple[PrivateKey, PublicKey]] (default: None)
+            Tuple containing the elliptic curve private key and public key for
+            authentication from the cryptography library.
+            Source: https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/
+            Used to establish an authenticated connection with the server.
+        max_retries: Optional[int] (default: None)
+            The maximum number of times the client will try to connect to the
+            server before giving up in case of a connection error. If set to None,
+            there is no limit to the number of tries.
+        max_wait_time: Optional[float] (default: None)
+            The maximum duration before the client stops trying to
+            connect to the server in case of connection error.
+            If set to None, there is no limit to the total time.
+        flwr_path: Optional[Path] (default: None)
+            The fully resolved path containing installed Flower Apps.
+        isolation : Optional[str] (default: None)
+            Isolation mode for `ClientApp`. Possible values are `subprocess` and
+            `process`. Defaults to `None`, which runs the `ClientApp` in the same process
+            as the SuperNode. If `subprocess`, the `ClientApp` runs in a subprocess started
+            by the SueprNode and communicates using gRPC at the address
+            `clientappio_api_address`. If `process`, the `ClientApp` runs in a separate
+            isolated process and communicates using gRPC at the address
+            `clientappio_api_address`.
+        clientappio_api_address : Optional[str]
+            (default: `CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS`)
+            The SuperNode gRPC server address.
+        """
     if insecure is None:
         insecure = root_certificates is None
 

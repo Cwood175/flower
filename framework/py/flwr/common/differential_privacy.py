@@ -31,7 +31,7 @@ from flwr.common.logger import log
 
 def get_norm(input_arrays: NDArrays) -> float:
     """Compute the L2 norm of the flattened input."""
-    array_norms = [np.linalg.norm(array.flat) for array in input_arrays]
+    array_norms = [np.linalg.norm(np.asarray(array).flat) for array in input_arrays]
     # pylint: disable=consider-using-generator
     return float(np.sqrt(sum([norm**2 for norm in array_norms])))
 
@@ -39,7 +39,8 @@ def get_norm(input_arrays: NDArrays) -> float:
 def add_gaussian_noise_inplace(input_arrays: NDArrays, std_dev: float) -> None:
     """Add Gaussian noise to each element of the input arrays."""
     for array in input_arrays:
-        noise = np.random.normal(0, std_dev, array.shape).astype(array.dtype)
+        arr = np.asarray(array)
+        noise = np.random.normal(0, std_dev, arr.shape).astype(arr.dtype)
         array += noise
 
 
@@ -70,7 +71,7 @@ def compute_clip_model_update(
     """Compute model update (param1 - param2) and clip it.
 
     Then add the clipped value to param1."""
-    model_update = [np.subtract(x, y) for (x, y) in zip(param1, param2)]
+    model_update = [np.subtract(np.asarray(x), np.asarray(y)) for (x, y) in zip(param1, param2)]
     clip_inputs_inplace(model_update, clipping_norm)
 
     for i, _ in enumerate(param2):
@@ -98,7 +99,7 @@ def compute_adaptive_clip_model_update(
     model update = param1 - param2
     Return the norm_bit
     """
-    model_update = [np.subtract(x, y) for (x, y) in zip(param1, param2)]
+    model_update = [np.subtract(np.asarray(x), np.asarray(y)) for (x, y) in zip(param1, param2)]
     norm_bit = adaptive_clip_inputs_inplace(model_update, clipping_norm)
 
     for i, _ in enumerate(param2):
