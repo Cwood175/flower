@@ -38,7 +38,7 @@ class TestArrayFromNumpy(unittest.TestCase):
         deserialized_array = np.load(buffer, allow_pickle=False)
 
         # Assert
-        self.assertEqual(array_instance.dtype, str(original_array.dtype))
-        self.assertEqual(array_instance.shape, tuple(original_array.shape))
+        self.assertEqual(cast(np.ndarray, array_instance).dtype, str(original_array.dtype))
+        self.assertEqual(cast(np.ndarray, array_instance).shape, tuple(original_array.shape))
         self.assertEqual(array_instance.stype, SType.NUMPY)
         np.testing.assert_array_equal(deserialized_array, original_array)
