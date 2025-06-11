@@ -222,8 +222,8 @@ def weighted_loss_avg(results: list[tuple[int, float]]) -> float:
 
 
 def aggregate_qffl(
-    parameters: NDArrays, deltas: list[NDArrays], hs_fll: list[NDArrays]
-) -> NDArrays:
+    parameters: list[np.ndarray], deltas: list[list[np.ndarray]], hs_fll: list[list[np.ndarray]]
+) -> list[np.ndarray]:
     """Compute weighted average based on Q-FFL paper."""
     demominator: float = np.sum(np.asarray(hs_fll))
     scaled_deltas = []
@@ -255,7 +255,7 @@ def _compute_distances(weights: list[NDArrays]) -> NDArray:
     return distance_matrix
 
 
-def _trim_mean(array: NDArray, proportiontocut: float) -> NDArray:
+def _trim_mean(array: np.ndarray, proportiontocut: float) -> np.ndarray:
     """Compute trimmed mean along axis=0.
 
     It is based on the scipy implementation.
@@ -274,18 +274,18 @@ def _trim_mean(array: NDArray, proportiontocut: float) -> NDArray:
 
     slice_list = [slice(None)] * atmp.ndim
     slice_list[axis] = slice(lowercut, uppercut)
-    result: NDArray = np.mean(atmp[tuple(slice_list)], axis=axis)
+    result: np.ndarray = np.mean(atmp[tuple(slice_list)], axis=axis)
     return result
 
 
 def aggregate_trimmed_avg(
-    results: list[tuple[NDArrays, int]], proportiontocut: float
-) -> NDArrays:
+    results: list[tuple[list[np.ndarray], int]], proportiontocut: float
+) -> list[np.ndarray]:
     """Compute trimmed average."""
     # Create a list of weights and ignore the number of examples
     weights = [weights for weights, _ in results]
 
-    trimmed_w: NDArrays = [
+    trimmed_w: list[np.ndarray] = [
         _trim_mean(np.asarray(layer), proportiontocut=proportiontocut)
         for layer in zip(*weights)
     ]
@@ -293,7 +293,7 @@ def aggregate_trimmed_avg(
     return trimmed_w
 
 
-def _check_weights_equality(weights1: NDArrays, weights2: NDArrays) -> bool:
+def _check_weights_equality(weights1: list[np.ndarray], weights2: list[np.ndarray]) -> bool:
     """Check if weights are the same."""
     if len(weights1) != len(weights2):
         return False
@@ -304,7 +304,7 @@ def _check_weights_equality(weights1: NDArrays, weights2: NDArrays) -> bool:
 
 
 def _find_reference_weights(
-    reference_weights: NDArrays, list_of_weights: list[NDArrays]
+    reference_weights: list[np.ndarray], list_of_weights: list[list[np.ndarray]]
 ) -> int:
     """Find the reference weights by looping through the `list_of_weights`.
 
@@ -312,9 +312,9 @@ def _find_reference_weights(
 
     Parameters
     ----------
-    reference_weights: NDArrays
+    reference_weights: list[np.ndarray]
         Weights that will be searched for.
-    list_of_weights: List[NDArrays]
+    list_of_weights: list[list[np.ndarray]]
         List of weights that will be searched through.
 
     Returns
@@ -334,8 +334,8 @@ def _find_reference_weights(
 
 
 def _aggregate_n_closest_weights(
-    reference_weights: NDArrays, results: list[tuple[NDArrays, int]], beta_closest: int
-) -> NDArrays:
+    reference_weights: list[np.ndarray], results: list[tuple[list[np.ndarray], int]], beta_closest: int
+) -> list[np.ndarray]:
     """Calculate element-wise mean of the `N` closest values.
 
     Note, each i-th coordinate of the result weight is the average of the beta_closest
@@ -344,16 +344,16 @@ def _aggregate_n_closest_weights(
 
     Parameters
     ----------
-    reference_weights: NDArrays
+    reference_weights: list[np.ndarray]
         The weights from which the distances will be computed
-    results: list[tuple[NDArrays, int]]
+    results: list[tuple[list[np.ndarray], int]]
         The weights from models
     beta_closest: int
         The number of the closest distance weights that will be averaged
 
     Returns
     -------
-    aggregated_weights: NDArrays
+    aggregated_weights: list[np.ndarray]
         Averaged (element-wise) beta weights that have the closest distance to
          reference weights
     """
