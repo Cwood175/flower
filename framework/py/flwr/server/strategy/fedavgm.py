@@ -183,7 +183,7 @@ class FedAvgM(FedAvg):
             fedavg_result = [
                 x - self.server_learning_rate * y
                 for x, y in zip(initial_weights, pseudo_gradient)
-            ]
+            ]  # type: ignore[operator]
             # Update current weights
             self.initial_parameters = ndarrays_to_parameters(fedavg_result)
 
