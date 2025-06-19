@@ -14,7 +14,6 @@
 # ==============================================================================
 """Unit tests for Array."""
 
-
 import sys
 import unittest
 from io import BytesIO
@@ -69,7 +68,9 @@ class TestArray(unittest.TestCase):
     def test_numpy_conversion_valid(self) -> None:
         """Test the numpy method with valid Array instance."""
         # Prepare
-        original_array = np.array([1, 2, 3], dtype=np.float32)
+        original_array: np.ndarray[Any, np.dtype[np.float32]] = np.array(
+            [1, 2, 3], dtype=np.float32
+        )
 
         buffer = _get_buffer_from_ndarray(original_array)
 

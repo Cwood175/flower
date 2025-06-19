@@ -14,10 +14,10 @@
 # ==============================================================================
 """FedMedian tests."""
 
-
 from unittest.mock import MagicMock
 
 from numpy import array, float32
+from numpy.testing import assert_array_equal
 
 from flwr.common import (
     Code,
@@ -196,4 +196,4 @@ def test_aggregate_fit() -> None:
     assert actual_aggregated
     actual_list = parameters_to_ndarrays(actual_aggregated)
     actual = actual_list[0]
-    assert (actual == expected[0]).all()
+    assert_array_equal(actual, expected[0])
