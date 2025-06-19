@@ -216,7 +216,7 @@ class TestArrayRecord(unittest.TestCase):
                 _ = ArrayRecord(ndarrays)
             mock_from_numpy.assert_called_once_with(ndarrays, keep_input=True)
 
-    @parameterized.expand([(True,), (False,)])  # type: ignore
+    @parameterized.expand([(True,), (False,)])
     def test_init_array_dict_keep_input_false(self, use_keyword: bool) -> None:
         """Test initializing with an array_dict and keep_input=False."""
         # Prepare
@@ -268,7 +268,7 @@ class TestArrayRecord(unittest.TestCase):
         self.assertEqual(input_size_after1, input_size_original)
         self.assertEqual(input_size_after2, 0)
 
-    @parameterized.expand([(True,), (False,)])  # type: ignore
+    @parameterized.expand([(True,), (False,)])
     def test_init_array_dict_keep_input_true(self, use_keyword: bool) -> None:
         """Test initializing with an array_dict and keep_input=True."""
         # Prepare
@@ -304,7 +304,7 @@ class TestArrayRecord(unittest.TestCase):
             # The method should be called exactly once with the provided dict
             mock_from_state_dict.assert_called_once_with(state_dict, keep_input=True)
 
-    @parameterized.expand(  # type: ignore
+    @parameterized.expand(
         [
             ((42,), {}),
             (("invalid",), {}),
@@ -330,7 +330,7 @@ class TestArrayRecord(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "Invalid arguments for ArrayRecord.*"):
             ArrayRecord(*args, **kwargs)
 
-    @parameterized.expand(  # type: ignore
+    @parameterized.expand(
         [
             ([np.array([1, 2]), np.array([3, 4])],),  # Two arrays
             ([np.array(5)],),  # Single array
@@ -408,7 +408,7 @@ class TestArrayRecord(unittest.TestCase):
 )
 def test_count_bytes(shape: tuple[int, ...], dtype: str) -> None:
     """Test bytes in a ArrayRecord are computed correctly."""
-    original_array = np.random.randn(*shape).astype(np.dtype(dtype))
+    original_array = np.random.randn(*shape).astype(dtype)
 
     buff = ndarray_to_bytes(original_array)
 

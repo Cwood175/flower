@@ -139,7 +139,7 @@ class DPFedAvgNumPyClient(NumPyClient):
             update = add_gaussian_noise(update, config["dpfedavg_noise_stddev"])
 
         for i, _ in enumerate(original_params):
-            updated_params[i] = original_params[i] + update[i]
+            updated_params[i] = original_params[i] + update[i]  # type: ignore[operator]
 
         # Calculating value of norm indicator bit, required for adaptive clipping
         if "dpfedavg_adaptive_clip_enabled" in config:

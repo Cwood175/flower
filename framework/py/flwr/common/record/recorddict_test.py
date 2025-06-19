@@ -240,6 +240,7 @@ def test_set_metrics_to_metricrecord_with_correct_types(
         ),  # float: List[int] (unsupported: supported)
     ],
 )
+# type: ignore[union-attr]
 def test_set_metrics_to_metricrecord_with_incorrect_types(
     key_type: type[Union[str, int, float, bool]],
     value_fn: Callable[[NDArray], Union[NDArray, dict[str, NDArray], list[float]]],
@@ -255,7 +256,7 @@ def test_set_metrics_to_metricrecord_with_incorrect_types(
     )
 
     with pytest.raises(TypeError):
-        m_record.update(my_metrics)  # type: ignore
+        m_record.update(my_metrics)
 
 
 @pytest.mark.parametrize(
@@ -365,14 +366,14 @@ def test_set_configs_to_configrecord_with_incorrect_types(
     )
 
     with pytest.raises(TypeError):
-        c_record.update(my_configs)  # type: ignore
+        c_record.update(my_configs)
 
 
 def test_count_bytes_metricrecord() -> None:
     """Test counting bytes in MetricRecord."""
     data = {"a": 1, "b": 2.0, "c": [1, 2, 3], "d": [1.0, 2.0, 3.0, 4.0, 5.0]}
     bytes_in_dict = 8 + 8 + 3 * 8 + 5 * 8
-    bytes_in_dict += 4  # represnting the keys
+    bytes_in_dict += 4  # representing the keys
 
     m_record = MetricRecord()
     m_record.update(OrderedDict(data))
@@ -384,7 +385,7 @@ def test_count_bytes_configrecord() -> None:
     """Test counting bytes in ConfigRecord."""
     data = {"a": 1, "b": 2.0, "c": [1, 2, 3], "d": [1.0, 2.0, 3.0, 4.0, 5.0]}
     bytes_in_dict = 8 + 8 + 3 * 8 + 5 * 8
-    bytes_in_dict += 4  # represnting the keys
+    bytes_in_dict += 4  # representing the keys
 
     to_add = {
         "aa": True,
@@ -396,7 +397,7 @@ def test_count_bytes_configrecord() -> None:
     }
     data = {**data, **to_add}
     bytes_in_dict += 1 + 5 + 9 + 3 + (4 + 5) + (1 + 13 + 51)
-    bytes_in_dict += 12  # represnting the keys
+    bytes_in_dict += 12  # representing the keys
 
     bytes_in_dict = int(bytes_in_dict)
 
