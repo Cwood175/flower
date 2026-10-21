@@ -14,7 +14,6 @@
 # ==============================================================================
 """ServerAppIo gRPC API."""
 
-
 from logging import INFO
 from typing import Optional
 
@@ -39,8 +38,22 @@ def run_serverappio_api_grpc(
     certificates: Optional[tuple[bytes, bytes, bytes]],
 ) -> grpc.Server:
     """Run ServerAppIo API (gRPC, request-response)."""
+
+    # Provide a concrete subclass implementing any abstract RPCs so we
+    # do not attempt to instantiate an abstract ServerAppIoServicer.
+    class _ConcreteServerAppIoServicer(ServerAppIoServicer):
+        def PullObject(self, request, context):
+            # Minimal implementation to satisfy abstract interface.
+            # Actual behavior should be implemented as needed.
+            raise NotImplementedError("PullObject is not implemented")
+
+        def PushObject(self, request, context):
+            # Minimal implementation to satisfy abstract interface.
+            # Actual behavior should be implemented as needed.
+            raise NotImplementedError("PushObject is not implemented")
+
     # Create ServerAppIo API gRPC server
-    serverappio_servicer: grpc.Server = ServerAppIoServicer(
+    serverappio_servicer: ServerAppIoServicer = _ConcreteServerAppIoServicer(
         state_factory=state_factory,
         ffs_factory=ffs_factory,
     )
