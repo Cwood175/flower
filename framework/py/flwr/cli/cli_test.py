@@ -18,7 +18,38 @@ from typer.testing import CliRunner
 
 from flwr.common.version import package_version
 
-from .app import app
+import click
+
+
+class _LazyApp(click.MultiCommand):
+    def __init__(self):
+        super().__init__(name="flwr")
+        self._real = None
+
+    def _load(self):
+        if self._real is None:
+            from .app import app as _app
+
+            self._real = _app
+
+    def list_commands(self, ctx):
+        self._load()
+        return self._real.list_commands(ctx)
+
+    def get_command(self, ctx, name):
+        self._load()
+        return self._real.get_command(ctx, name)
+
+    def invoke(self, ctx):
+        self._load()
+        return self._real.invoke(ctx)
+
+    def main(self, *args, **kwargs):
+        self._load()
+        return self._real.main(*args, **kwargs)
+
+
+app = _LazyApp()
 
 runner = CliRunner()
 
