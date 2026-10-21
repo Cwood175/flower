@@ -14,7 +14,6 @@
 # ==============================================================================
 """Flower client app."""
 
-
 import multiprocessing
 import os
 import sys
@@ -23,7 +22,6 @@ import time
 from contextlib import AbstractContextManager
 from logging import ERROR, INFO, WARN
 from os import urandom
-from pathlib import Path
 from typing import Callable, Optional, Union, cast
 
 import grpc
@@ -69,7 +67,7 @@ from flwr.common.exit import ExitCode, flwr_exit
 from flwr.common.grpc import generic_create_grpc_server
 from flwr.common.logger import log, warn_deprecated_feature
 from flwr.common.retry_invoker import RetryInvoker, RetryState, exponential
-from flwr.common.typing import Fab, Run, RunNotRunningException, UserConfig
+from flwr.common.typing import Fab, Run, RunNotRunningException
 from flwr.proto.clientappio_pb2_grpc import add_ClientAppIoServicer_to_server
 
 
@@ -223,23 +221,8 @@ def start_client(
 # pylint: disable=too-many-statements
 def start_client_internal(
     *,
-    server_address: str,
-    node_config: UserConfig,
-    load_client_app_fn: Optional[Callable[[str, str, str], ClientApp]] = None,
-    client_fn: Optional[ClientFnExt] = None,
-    client: Optional[Client] = None,
-    grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
-    root_certificates: Optional[Union[bytes, str]] = None,
-    insecure: Optional[bool] = None,
-    transport: Optional[str] = None,
-    authentication_keys: Optional[
-        tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]
-    ] = None,
-    max_retries: Optional[int] = None,
-    max_wait_time: Optional[float] = None,
-    flwr_path: Optional[Path] = None,
-    isolation: Optional[str] = None,
-    clientappio_api_address: Optional[str] = CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS,
+    config: Optional[dict] = None,
+    **kwargs,
 ) -> None:
     """Start a Flower client node which connects to a Flower server.
 
@@ -304,6 +287,33 @@ def start_client_internal(
         (default: `CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS`)
         The SuperNode gRPC server address.
     """
+    # Backwards-compatible parameter handling:
+    # Accept a `config` dict and/or individual kwargs. Values in `kwargs` take
+    # precedence over `config`.
+    if config is None:
+        config = {}
+
+    def _get(name, default=None):
+        return kwargs.get(name, config.get(name, default))
+
+    server_address = _get("server_address")
+    node_config = _get("node_config")
+    load_client_app_fn = _get("load_client_app_fn", None)
+    client_fn = _get("client_fn", None)
+    client = _get("client", None)
+    grpc_max_message_length = _get("grpc_max_message_length", GRPC_MAX_MESSAGE_LENGTH)
+    root_certificates = _get("root_certificates", None)
+    insecure = _get("insecure", None)
+    transport = _get("transport", None)
+    authentication_keys = _get("authentication_keys", None)
+    max_retries = _get("max_retries", None)
+    max_wait_time = _get("max_wait_time", None)
+    flwr_path = _get("flwr_path", None)
+    isolation = _get("isolation", None)
+    clientappio_api_address = _get(
+        "clientappio_api_address", CLIENTAPPIO_API_DEFAULT_SERVER_ADDRESS
+    )
+
     if insecure is None:
         insecure = root_certificates is None
 
@@ -572,7 +582,6 @@ def start_client_internal(
                             # Execute ClientApp
                             reply_message = client_app(message=message, context=context)
                     except Exception as ex:  # pylint: disable=broad-exception-caught
-
                         # Legacy grpc-bidi
                         if transport in ["grpc-bidi", None]:
                             log(ERROR, "Client raised an exception.", exc_info=ex)
@@ -740,7 +749,9 @@ def start_numpy_client(
     )
 
 
-def _init_connection(transport: Optional[str], server_address: str) -> tuple[
+def _init_connection(
+    transport: Optional[str], server_address: str
+) -> tuple[
     Callable[
         [
             str,
