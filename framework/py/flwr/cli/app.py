@@ -47,13 +47,18 @@ app.command()(ls)
 app.command()(stop)
 app.command()(login)
 
-typer_click_object = get_command(app)
+# Avoid constructing the Click command at import time. Construct lazily when needed.
+typer_click_object = None
+
+
+def get_typer_click_object():
+    return get_command(app)
 
 
 @app.callback(invoke_without_command=True)
 def version_callback(
     ver: bool = typer.Option(
-        None,
+        False,
         "-V",
         "--version",
         is_eager=True,

@@ -18,7 +18,22 @@ from typer.testing import CliRunner
 
 from flwr.common.version import package_version
 
-from .app import app
+
+# Lazily import the Typer/Click app to avoid constructing the CLI at module import time.
+# This proxy defers importing .app until an attribute or call is made on `app`.
+class _LazyApp:
+    def __getattr__(self, name):
+        from .app import app as _real_app
+
+        return getattr(_real_app, name)
+
+    def __call__(self, *args, **kwargs):
+        from .app import app as _real_app
+
+        return _real_app(*args, **kwargs)
+
+
+app = _LazyApp()
 
 runner = CliRunner()
 
