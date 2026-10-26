@@ -19,7 +19,6 @@
 Paper: arxiv.org/abs/2003.00295
 """
 
-
 from typing import Callable, Optional, Union
 
 import numpy as np
@@ -150,9 +149,11 @@ class FedAdam(FedOpt):
         fedavg_weights_aggregate = parameters_to_ndarrays(fedavg_parameters_aggregated)
 
         # Adam
-        delta_t: NDArrays = [
-            x - y for x, y in zip(fedavg_weights_aggregate, self.current_weights)
-        ]
+        delta_t: NDArrays = []
+        for x, y in zip(fedavg_weights_aggregate, self.current_weights):
+            assert x is not None
+            assert y is not None
+            delta_t.append(x - y)
 
         # m_t
         if not self.m_t:

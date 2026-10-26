@@ -14,7 +14,6 @@
 # ==============================================================================
 """FedAdagrad tests."""
 
-
 from unittest.mock import MagicMock
 
 from numpy import array, float32
